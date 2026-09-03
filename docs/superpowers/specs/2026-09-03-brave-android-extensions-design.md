@@ -14,7 +14,7 @@ The first usable milestone is an MVP, not full desktop-extension parity.
 
 1. A GitHub Actions workflow can fetch a pinned Brave source revision and its matching Chromium source, apply this repository's patch set, and build an Android APK.
 2. The resulting browser launches as a Brave-derived Android application.
-3. Chromium extension core is enabled for the Android build using the current upstream Android-extension infrastructure wherever possible, rather than reviving Brave's old 2020 patch set.
+3. Chromium extension core is enabled for Android using current upstream Android-extension infrastructure wherever possible, rather than reviving Brave's old 2020 patch set.
 4. The browser exposes a mobile Extensions manager reachable from the application menu.
 5. The manager can list installed extensions, enable/disable them, remove them, and show basic metadata/permissions.
 6. An extension can be installed from a local CRX package. ZIP/unpacked development installation is optional within MVP if it can be implemented without destabilizing CRX installation.
@@ -72,7 +72,7 @@ Patch filenames are conceptual boundaries. If upstream Chromium already implemen
 
 ## Upstream strategy
 
-Prefer current Chromium Android extension infrastructure, including the `enable_desktop_android_extensions` / extension-core build pathways, over Brave's historical Android-extension proof of concept.
+Prefer current Chromium Android extension infrastructure, including `enable_desktop_android_extensions` / extension-core build pathways, over Brave's historical Android-extension proof of concept.
 
 Rules:
 
@@ -80,7 +80,7 @@ Rules:
 - Avoid broad `IS_ANDROID` removals unless the underlying subsystem has been audited for Android.
 - Keep Brave-specific changes in `brave/chromium_src`, Android Java/Kotlin UI, or narrowly scoped build configuration where practical.
 - Do not import the old Brave proof-of-concept wholesale; it touched hundreds of files and is unsuitable as the maintenance base.
-- Cromite/other open-source Android Chromium browsers may be used as implementation references, but code is copied only when licensing is compatible and the change remains necessary against the pinned current Chromium revision.
+- Cromite/other open-source Android Chromium browsers may be implementation references, but code is copied only when licensing is compatible and the change remains necessary against the pinned current Chromium revision.
 
 ## Runtime components
 
@@ -152,7 +152,7 @@ ZIP/unpacked installation is a developer-mode follow-up. If included in MVP, it 
 
 ### 6. Chrome Web Store
 
-Chrome Web Store installation is milestone 2, after local CRX installation proves that the runtime is stable.
+Chrome Web Store installation is milestone M4, after the runtime, local CRX management and extension-action UX have been proven stable.
 
 The intended UX is to recognize Chrome Web Store extension pages and offer an install action. Implementation must use a supportable package/update path; it must not depend on scraping fragile page HTML. If Google's current store/install endpoints cannot be used reliably by a non-Chrome Android client, Web Store pages may initially guide the user to obtain a CRX instead.
 
@@ -239,7 +239,7 @@ As implementation permits:
 - valid fixture CRX installs and executes content script
 - browser starts normally when no extensions are installed
 
-Manual compatibility testing will additionally cover representative extensions such as Dark Reader/Tampermonkey/uBlock-origin-family extensions only when legally distributable/testable; third-party extension compatibility is not guaranteed by MVP.
+Manual compatibility testing may additionally cover representative third-party MV3 extensions. Third-party compatibility is not guaranteed by MVP.
 
 ## Error handling
 
@@ -287,7 +287,7 @@ Test common MV3 extensions, document unsupported APIs, fix high-value Android ga
 
 ## Branding and distribution
 
-Development builds must use distinct application branding/package identity before public distribution to avoid confusion with official Brave. During the earliest compile/runtime spike, upstream Brave branding may remain temporarily if that is necessary to prove the build, but public artifacts/releases must be clearly identified as an unofficial fork.
+Development builds must use distinct application branding/package identity before public distribution to avoid confusion with official Brave. During the earliest compile/runtime spike, upstream Brave branding may remain temporarily if necessary to prove the build, but public artifacts/releases must be clearly identified as an unofficial fork.
 
 ## Definition of the first deliverable
 
