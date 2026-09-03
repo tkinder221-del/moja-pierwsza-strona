@@ -12,7 +12,7 @@ class RuntimeTestPlan(unittest.TestCase):
             work = Path(tmp)
             (work / "src" / "brave").mkdir(parents=True)
             result = subprocess.run(
-                [str(ROOT / "scripts" / "test-extension-runtime.sh"), "--print-plan", str(work)],
+                ["bash", str(ROOT / "scripts" / "test-extension-runtime.sh"), "--print-plan", str(work)],
                 check=True,
                 text=True,
                 capture_output=True,
