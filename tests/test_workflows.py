@@ -55,6 +55,16 @@ class WorkflowContractTest(unittest.TestCase):
         self.assertIn("./scripts/test-extension-runtime.sh", text)
         self.assertNotIn("pull_request_target", text)
 
+    def test_runner_temp_is_only_resolved_inside_steps(self) -> None:
+        for name in (
+            "build-android-apk.yml",
+            "hosted-extension-build.yml",
+            "runtime-extension-tests.yml",
+        ):
+            text = self.read(name)
+            self.assertNotIn("${{ runner.temp }}", text, name)
+            self.assertIn("$RUNNER_TEMP/brave-ext-work", text, name)
+
 
 if __name__ == "__main__":
     unittest.main()
