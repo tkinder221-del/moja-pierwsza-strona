@@ -28,8 +28,6 @@ jobs:
           docker system prune -af || true
           sudo apt-get clean
           df -h /
-      - name: Enable Corepack
-        run: corepack enable
       - name: Bootstrap Brave and Chromium
         run: bash ./scripts/bootstrap.sh "$RUNNER_TEMP/brave-ext-work"
       - name: Verify overlay patches
