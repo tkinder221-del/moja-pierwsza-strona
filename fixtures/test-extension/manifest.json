@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Brave Android Extensions MVP Fixture",
+  "version": "0.1.0",
+  "permissions": ["storage"],
+  "host_permissions": ["http://match.test/*"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_popup": "popup.html"},
+  "content_scripts": [{
+    "matches": ["http://match.test/*"],
+    "js": ["content_script.js"],
+    "run_at": "document_idle"
+  }]
+}
