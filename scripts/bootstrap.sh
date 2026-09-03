@@ -17,7 +17,8 @@ clone ${BRAVE_CORE_REPO} into ${BRAVE_DIR}
 checkout ${BRAVE_CORE_REF}
 expected Brave version: ${BRAVE_VERSION}
 expected Chromium version: ${CHROMIUM_VERSION}
-corepack enable
+corepack disable
+npm install --global pnpm@${PNPM_VERSION}
 pnpm run init --target_os=android --target_arch=${APK_TARGET_ARCH}
 ${WORK_ROOT}/src/build/install-build-deps.sh --android
 PLAN
@@ -41,7 +42,14 @@ if actual_chromium != sys.argv[3]:
     raise SystemExit(f"Chromium version mismatch: {actual_chromium} != {sys.argv[3]}")
 PY
 
+# Corepack currently rejects Brave Core's devEngines package-manager range
+# (`pnpm@>=11.11.0`) as a non-exact package-manager specification. Use the
+# minimum supported pnpm release directly so the repository's own engine
+# constraint remains satisfied without the Corepack project-spec shim.
+corepack disable || true
+npm install --global "pnpm@${PNPM_VERSION}"
+pnpm --version
+
 cd "${BRAVE_DIR}"
-corepack enable
 pnpm run init --target_os=android --target_arch="${APK_TARGET_ARCH}"
 "${WORK_ROOT}/src/build/install-build-deps.sh" --android
