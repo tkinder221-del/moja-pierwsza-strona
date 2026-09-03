@@ -14,7 +14,7 @@ on:
       build_mode:
         description: Brave build mode
         required: true
-        default: baseline
+        default: extensions
         type: choice
         options:
           - baseline
@@ -43,6 +43,9 @@ jobs:
         run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
       - name: Build Android APK
         run: bash ./scripts/build-android.sh "$WORK_ROOT" "${{ inputs.build_mode }}"
+      - name: Verify extension GN state
+        if: ${{ inputs.build_mode == 'extensions' }}
+        run: bash ./scripts/verify-extension-build.sh "$WORK_ROOT"
       - name: Collect build artifacts
         run: bash ./scripts/collect-artifacts.sh "$WORK_ROOT" artifacts
       - uses: actions/upload-artifact@v4
