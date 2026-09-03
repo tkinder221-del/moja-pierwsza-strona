@@ -9,8 +9,6 @@ permissions:
 jobs:
   runtime-tests:
     runs-on: self-hosted
-    env:
-      WORK_ROOT: ${{ runner.temp }}/brave-ext-work
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,10 +24,10 @@ jobs:
           boot_completed="$(adb shell getprop sys.boot_completed | tr -d '\r')"
           test "$boot_completed" = "1"
       - name: Bootstrap Brave and Chromium
-        run: bash ./scripts/bootstrap.sh "$WORK_ROOT"
+        run: bash ./scripts/bootstrap.sh "$RUNNER_TEMP/brave-ext-work"
       - name: Verify overlay patches
-        run: bash ./scripts/verify-patches.sh "$WORK_ROOT/src"
+        run: bash ./scripts/verify-patches.sh "$RUNNER_TEMP/brave-ext-work/src"
       - name: Apply overlay patches
-        run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
+        run: bash ./scripts/apply-patches.sh "$RUNNER_TEMP/brave-ext-work/src"
       - name: Run extension runtime gate
-        run: bash ./scripts/test-extension-runtime.sh "$WORK_ROOT"
+        run: bash ./scripts/test-extension-runtime.sh "$RUNNER_TEMP/brave-ext-work"
