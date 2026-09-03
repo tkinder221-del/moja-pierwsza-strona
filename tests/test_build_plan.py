@@ -59,5 +59,52 @@ class BuildPlanTest(unittest.TestCase):
             self.assertIn("OVERLAY_COMMIT=", metadata)
 
 
+class ExtensionBuildVerificationTest(unittest.TestCase):
+    def make_fake_work(self, tmp: str, core_value: str) -> Path:
+        work = Path(tmp)
+        gn = work / "src" / "buildtools" / "linux64" / "gn"
+        out = work / "src" / "out" / "BraveExtDebug"
+        gn.parent.mkdir(parents=True)
+        out.mkdir(parents=True)
+        gn.write_text(
+            "#!/usr/bin/env bash\n"
+            "set -euo pipefail\n"
+            "name=${3#--list=}\n"
+            "case \"$name\" in\n"
+            "  enable_desktop_android_extensions) value=true ;;\n"
+            f"  enable_extensions_core) value={core_value} ;;\n"
+            "  is_desktop_android) value=false ;;\n"
+            "  *) exit 3 ;;\n"
+            "esac\n"
+            "printf '%s\\n    Current value = %s\\n' \"$name\" \"$value\"\n",
+            encoding="utf-8",
+        )
+        gn.chmod(0o755)
+        return work
+
+    def test_extension_build_verifier_accepts_expected_values(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            work = self.make_fake_work(tmp, "true")
+            result = subprocess.run(
+                [str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+            self.assertIn("enable_extensions_core", result.stdout)
+
+    def test_extension_build_verifier_rejects_disabled_core(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            work = self.make_fake_work(tmp, "false")
+            result = subprocess.run(
+                [str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
+                check=False,
+                text=True,
+                capture_output=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("enable_extensions_core", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
