@@ -26,8 +26,6 @@ permissions:
 jobs:
   build:
     runs-on: ${{ inputs.runner }}
-    env:
-      WORK_ROOT: ${{ runner.temp }}/brave-ext-work
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,18 +34,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Bootstrap Brave and Chromium
-        run: bash ./scripts/bootstrap.sh "$WORK_ROOT"
+        run: bash ./scripts/bootstrap.sh "$RUNNER_TEMP/brave-ext-work"
       - name: Verify overlay patches
-        run: bash ./scripts/verify-patches.sh "$WORK_ROOT/src"
+        run: bash ./scripts/verify-patches.sh "$RUNNER_TEMP/brave-ext-work/src"
       - name: Apply overlay patches
-        run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
+        run: bash ./scripts/apply-patches.sh "$RUNNER_TEMP/brave-ext-work/src"
       - name: Build Android APK
-        run: bash ./scripts/build-android.sh "$WORK_ROOT" "${{ inputs.build_mode }}"
+        run: bash ./scripts/build-android.sh "$RUNNER_TEMP/brave-ext-work" "${{ inputs.build_mode }}"
       - name: Verify extension GN state
         if: ${{ inputs.build_mode == 'extensions' }}
-        run: bash ./scripts/verify-extension-build.sh "$WORK_ROOT"
+        run: bash ./scripts/verify-extension-build.sh "$RUNNER_TEMP/brave-ext-work"
       - name: Collect build artifacts
-        run: bash ./scripts/collect-artifacts.sh "$WORK_ROOT" artifacts
+        run: bash ./scripts/collect-artifacts.sh "$RUNNER_TEMP/brave-ext-work" artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: brave-android-${{ inputs.build_mode }}
