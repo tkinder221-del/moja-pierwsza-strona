@@ -12,7 +12,7 @@ class BuildPlanTest(unittest.TestCase):
             work = Path(tmp)
             (work / "src" / "brave").mkdir(parents=True)
             result = subprocess.run(
-                [str(ROOT / "scripts" / "build-android.sh"), "--print-plan", str(work), mode],
+                ["bash", str(ROOT / "scripts" / "build-android.sh"), "--print-plan", str(work), mode],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -44,7 +44,7 @@ class BuildPlanTest(unittest.TestCase):
             apk_dir.mkdir(parents=True)
             (apk_dir / "fixture.apk").write_bytes(b"apk")
             subprocess.run(
-                [str(ROOT / "scripts" / "collect-artifacts.sh"), str(work), str(out)],
+                ["bash", str(ROOT / "scripts" / "collect-artifacts.sh"), str(work), str(out)],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -86,7 +86,7 @@ class ExtensionBuildVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             work = self.make_fake_work(tmp, "true")
             result = subprocess.run(
-                [str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
+                ["bash", str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -97,7 +97,7 @@ class ExtensionBuildVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             work = self.make_fake_work(tmp, "false")
             result = subprocess.run(
-                [str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
+                ["bash", str(ROOT / "scripts" / "verify-extension-build.sh"), str(work)],
                 check=False,
                 text=True,
                 capture_output=True,
