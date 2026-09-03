@@ -20,6 +20,9 @@ class BootstrapPlanTest(unittest.TestCase):
         self.assertIn("f437ba81810858a15a961f13aab4fa24bb3ccce2", out)
         self.assertIn("expected Brave version: 1.96.43", out)
         self.assertIn("expected Chromium version: 153.0.8010.18", out)
+        self.assertIn("corepack disable", out)
+        self.assertIn("npm install --global pnpm@11.11.0", out)
+        self.assertNotIn("corepack enable", out)
         self.assertIn("pnpm run init --target_os=android --target_arch=arm64", out)
         self.assertIn("install-build-deps.sh --android", out)
 
