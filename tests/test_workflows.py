@@ -23,6 +23,7 @@ class WorkflowContractTest(unittest.TestCase):
         self.assertIn("self-hosted", text)
         self.assertIn("baseline", text)
         self.assertIn("extensions", text)
+        self.assertIn("default: extensions", text)
         self.assertIn("actions/checkout@v4", text)
         self.assertIn("actions/setup-node@v4", text)
         self.assertIn("node-version: '24.16.0'", text)
@@ -32,12 +33,27 @@ class WorkflowContractTest(unittest.TestCase):
             "./scripts/apply-patches.sh",
             "./scripts/build-android.sh",
             "./scripts/collect-artifacts.sh",
+            "./scripts/verify-extension-build.sh",
         ):
             self.assertIn(command, text)
         self.assertIn("actions/upload-artifact@v4", text)
         self.assertNotIn("pull_request_target", text)
         self.assertNotIn("SIGNING", text.upper())
         self.assertNotIn("curl | sh", text)
+
+    def test_runtime_workflow_gates_android_extension_tests(self) -> None:
+        text = self.read("runtime-extension-tests.yml")
+        self.assertIn("workflow_dispatch:", text)
+        self.assertIn("runs-on: self-hosted", text)
+        self.assertIn("actions/checkout@v4", text)
+        self.assertIn("actions/setup-node@v4", text)
+        self.assertIn("adb devices", text)
+        self.assertIn("sys.boot_completed", text)
+        self.assertIn("./scripts/bootstrap.sh", text)
+        self.assertIn("./scripts/verify-patches.sh", text)
+        self.assertIn("./scripts/apply-patches.sh", text)
+        self.assertIn("./scripts/test-extension-runtime.sh", text)
+        self.assertNotIn("pull_request_target", text)
 
 
 if __name__ == "__main__":
