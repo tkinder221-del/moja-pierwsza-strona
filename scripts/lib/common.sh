@@ -6,7 +6,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 load_project_config() {
   # shellcheck disable=SC1091
   source "${PROJECT_ROOT}/config/brave-version.env"
-  local required=(BRAVE_CORE_REPO BRAVE_CORE_REF BRAVE_VERSION CHROMIUM_VERSION APK_TARGET_ARCH TEST_TARGET_ARCH BUILD_DIR)
+  local required=(BRAVE_CORE_REPO BRAVE_CORE_REF BRAVE_VERSION CHROMIUM_VERSION PNPM_VERSION APK_TARGET_ARCH TEST_TARGET_ARCH BUILD_DIR)
   local name
   for name in "${required[@]}"; do
     [[ -n "${!name:-}" ]] || { printf 'Missing required variable: %s\n' "$name" >&2; return 1; }
