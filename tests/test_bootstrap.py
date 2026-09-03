@@ -10,7 +10,7 @@ class BootstrapPlanTest(unittest.TestCase):
     def test_print_plan_is_pinned_and_uses_brave_supported_layout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             result = subprocess.run(
-                [str(ROOT / "scripts" / "bootstrap.sh"), "--print-plan", tmp],
+                ["bash", str(ROOT / "scripts" / "bootstrap.sh"), "--print-plan", tmp],
                 check=True,
                 text=True,
                 capture_output=True,
