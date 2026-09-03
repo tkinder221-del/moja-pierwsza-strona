@@ -1,5 +1,7 @@
 name: One-time Hosted Android Extension Build
 
+# This workflow is intentionally branch-scoped and used to produce the first
+# extension-enabled development APK on a GitHub-hosted runner.
 on:
   push:
     branches:
