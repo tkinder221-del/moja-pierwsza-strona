@@ -37,14 +37,14 @@ class PatchScriptsTest(unittest.TestCase):
             env = os.environ.copy()
             env["OVERLAY_PATCH_DIR"] = str(patches)
             subprocess.run(
-                [str(ROOT / "scripts" / "verify-patches.sh"), str(src)],
+                ["bash", str(ROOT / "scripts" / "verify-patches.sh"), str(src)],
                 check=True,
                 text=True,
                 capture_output=True,
                 env=env,
             )
             subprocess.run(
-                [str(ROOT / "scripts" / "apply-patches.sh"), str(src)],
+                ["bash", str(ROOT / "scripts" / "apply-patches.sh"), str(src)],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -62,7 +62,7 @@ class PatchScriptsTest(unittest.TestCase):
             env = os.environ.copy()
             env["OVERLAY_PATCH_DIR"] = str(patches)
             result = subprocess.run(
-                [str(ROOT / "scripts" / "apply-patches.sh"), str(src)],
+                ["bash", str(ROOT / "scripts" / "apply-patches.sh"), str(src)],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -77,7 +77,7 @@ class FixtureStagingTest(unittest.TestCase):
             src = Path(tmp) / "src"
             (src / "chrome" / "test" / "data" / "extensions").mkdir(parents=True)
             subprocess.run(
-                [str(ROOT / "scripts" / "stage-test-fixture.sh"), str(src)],
+                ["bash", str(ROOT / "scripts" / "stage-test-fixture.sh"), str(src)],
                 check=True,
                 text=True,
                 capture_output=True,
