@@ -1,0 +1,49 @@
+name: One-time Hosted Android Extension Build
+
+on:
+  push:
+    branches:
+      - feat/brave-android-extensions-m0-m1
+    paths:
+      - .github/workflows/hosted-extension-build.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      WORK_ROOT: ${{ runner.temp }}/brave-ext-work
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+      - name: Reclaim hosted runner disk
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          docker system prune -af || true
+          sudo apt-get clean
+          df -h /
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Bootstrap Brave and Chromium
+        run: bash ./scripts/bootstrap.sh "$WORK_ROOT"
+      - name: Verify overlay patches
+        run: bash ./scripts/verify-patches.sh "$WORK_ROOT/src"
+      - name: Apply overlay patches
+        run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
+      - name: Build extension-enabled Android APK
+        run: bash ./scripts/build-android.sh "$WORK_ROOT" extensions
+      - name: Verify generated extension flags
+        run: bash ./scripts/verify-extension-build.sh "$WORK_ROOT"
+      - name: Collect build artifacts
+        run: bash ./scripts/collect-artifacts.sh "$WORK_ROOT" artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brave-android-extensions-hosted
+          path: artifacts/
+          if-no-files-found: error
