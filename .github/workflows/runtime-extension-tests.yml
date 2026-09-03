@@ -1,0 +1,35 @@
+name: Runtime Extension Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-tests:
+    runs-on: self-hosted
+    env:
+      WORK_ROOT: ${{ runner.temp }}/brave-ext-work
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Verify Android emulator
+        run: |
+          adb devices
+          device_count="$(adb devices | awk 'NR > 1 && $2 == "device" { count++ } END { print count + 0 }')"
+          test "$device_count" -eq 1
+          boot_completed="$(adb shell getprop sys.boot_completed | tr -d '\r')"
+          test "$boot_completed" = "1"
+      - name: Bootstrap Brave and Chromium
+        run: bash ./scripts/bootstrap.sh "$WORK_ROOT"
+      - name: Verify overlay patches
+        run: bash ./scripts/verify-patches.sh "$WORK_ROOT/src"
+      - name: Apply overlay patches
+        run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
+      - name: Run extension runtime gate
+        run: bash ./scripts/test-extension-runtime.sh "$WORK_ROOT"
