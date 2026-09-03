@@ -71,5 +71,31 @@ class PatchScriptsTest(unittest.TestCase):
             self.assertEqual(result.stdout.strip(), "No overlay patches to apply.")
 
 
+class FixtureStagingTest(unittest.TestCase):
+    def test_stage_fixture_copies_all_files_byte_for_byte(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "src"
+            (src / "chrome" / "test" / "data" / "extensions").mkdir(parents=True)
+            subprocess.run(
+                [str(ROOT / "scripts" / "stage-test-fixture.sh"), str(src)],
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+            source = ROOT / "fixtures" / "test-extension"
+            dest = src / "chrome" / "test" / "data" / "extensions" / "brave_android_mvp"
+            names = ["manifest.json", "background.js", "content_script.js", "popup.html", "popup.js"]
+            for name in names:
+                self.assertEqual((dest / name).read_bytes(), (source / name).read_bytes())
+
+    def test_fixture_patch_targets_only_expected_chromium_test(self) -> None:
+        patch = (ROOT / "patches" / "0001-brave-android-extension-fixture-test.patch").read_text(encoding="utf-8")
+        self.assertIn("a/chrome/browser/extensions/desktop_android_extensions_browsertest.cc", patch)
+        self.assertIn("b/chrome/browser/extensions/desktop_android_extensions_browsertest.cc", patch)
+        self.assertIn("BraveMvpFixtureContentScript", patch)
+        self.assertIn("brave_android_mvp", patch)
+        self.assertNotIn("diff --git a/", patch.split("diff --git a/", 1)[-1])
+
+
 if __name__ == "__main__":
     unittest.main()
