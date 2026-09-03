@@ -1,0 +1,52 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner type
+        required: true
+        default: ubuntu-24.04
+        type: choice
+        options:
+          - ubuntu-24.04
+          - self-hosted
+      build_mode:
+        description: Brave build mode
+        required: true
+        default: baseline
+        type: choice
+        options:
+          - baseline
+          - extensions
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    env:
+      WORK_ROOT: ${{ runner.temp }}/brave-ext-work
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Bootstrap Brave and Chromium
+        run: bash ./scripts/bootstrap.sh "$WORK_ROOT"
+      - name: Verify overlay patches
+        run: bash ./scripts/verify-patches.sh "$WORK_ROOT/src"
+      - name: Apply overlay patches
+        run: bash ./scripts/apply-patches.sh "$WORK_ROOT/src"
+      - name: Build Android APK
+        run: bash ./scripts/build-android.sh "$WORK_ROOT" "${{ inputs.build_mode }}"
+      - name: Collect build artifacts
+        run: bash ./scripts/collect-artifacts.sh "$WORK_ROOT" artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brave-android-${{ inputs.build_mode }}
+          path: artifacts/
+          if-no-files-found: error
